@@ -42,11 +42,16 @@ public class TokenTransfer {
 
     }
 
-    public void addToken(String certNum, String imagePath) {
+    public void addToken(String certNum, String imagePath) throws Exception{
         state = states[3];
         logger.info("增加积分");
-        String res = HttpUtil.doGet(hostAddress + "/rubbish?" + "userId=" + certNum + "&value=" + GlobalVariable.TOKEN_AWARD_PER_PHOTO);
-        logger.info(res);
+        Trashcan trashcan = new Trashcan();
+        boolean result = trashcan.openCan();
+        if(result){
+            String res = HttpUtil.doGet(hostAddress + "/rubbish?" + "userId=" + certNum + "&value=" + GlobalVariable.TOKEN_AWARD_PER_PHOTO);
+            logger.info(res);
+        }
+        trashcan.closeCan();
     }
 //    private void request(String certNum, String imagePath, String state) {
 //        String base64Image = Base64ImageUtils.ImageToBase64ByLocal(imagePath);
