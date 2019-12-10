@@ -3,14 +3,15 @@ package com.xdlr.camera;
 import com.xdlr.camera.face.FaceLoginInfo;
 import com.xdlr.camera.face.FaceManager;
 import com.xdlr.camera.face.NVSSDK;
-import com.xdlr.camera.token.TokenTransfer;
+import com.xdlr.camera.trashcan.Trashcan;
+import com.xdlr.camera.userAction.UserActionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FaceClient {
     private static final Logger logger = LoggerFactory.getLogger(FaceClient.class);
     private FaceManager faceManager;
-    private TokenTransfer tokenTransfer;
+    private UserActionManager userActionManager;
 
     public static void main(String args[]) {
         logger.debug("Start camera-client");
@@ -31,8 +32,8 @@ public class FaceClient {
 
     private void init() {
         // 初始化积分工具
-        logger.debug("Init tokenTransfer");
-        tokenTransfer = new TokenTransfer();
+        logger.debug("Init userActionManager");
+        userActionManager = new UserActionManager();
 
         // 初始化抓拍机
         faceManager = new FaceManager(FaceLoginInfo.NVR_LOGIN_INFO);
@@ -66,7 +67,7 @@ public class FaceClient {
                             @Override
                             public void run() {
                                 logger.debug("处理用户积分");
-                                handleToken(faceDeviceId, channelNo, isStranger, faceId, negativePicturePath);
+                                handleUserAction(faceDeviceId, channelNo, isStranger, faceId, negativePicturePath);
                             }
                         }).start();
                     }
@@ -119,25 +120,29 @@ public class FaceClient {
         }
     }
 
-    void handleToken(String faceDeviceId, int channelNo, boolean isStranger, String faceId, String negativePicturePath) {
-        System.out.println("handleToken isStranger: " + isStranger + " faceDeviceId: " + faceDeviceId + " faceId: " + faceId);
+    void handleUserAction(String faceDeviceId, int channelNo, boolean isStranger, String faceId, String negativePicturePath) {
+        logger.info("handleUserAction isStranger: " + isStranger + " faceDeviceId: " + faceDeviceId + " faceId: " + faceId);
         if (isStranger) {
-            System.out.println("请等待智能分析暂停结果");
+            logger.info("请等待智能分析暂停结果");
             lastestNegativePicture = new NegativePicture(faceId, negativePicturePath);
             faceManager.SetVcaStatue(NVSSDK.VCA_SUSPEND_STATUS_PAUSE);
-            System.out.println("抓拍到新人");
-            tokenTransfer.initToken(faceId, negativePicturePath);
+            logger.info("抓拍到新人");
+            userActionManager.register(faceId, negativePicturePath);
         } else {
             if (channelNo == 2) {
                 // 售货机
-                System.out.println("出货");
-                tokenTransfer.renderGoods(faceId, negativePicturePath);
+                logger.info("出货");
+                userActionManager.renderGoods(faceId, negativePicturePath);
             } else if (channelNo == 0) {
-                System.out.println("文明行为");
-                tokenTransfer.addToken(faceId, negativePicturePath);
+                logger.info("文明行为");
+                userActionManager.openCan(faceId, negativePicturePath);
+//                Trashcan trashcan = new Trashcan();
+//                int state = trashcan.getCanState();
+//                if (state == Trashcan.TRASHCAN_STATE_OFF) {
+//                }
             } else if (channelNo == 1) {
-                tokenTransfer.updateTime(faceId, negativePicturePath);
-                System.out.println("主抓拍机");
+                userActionManager.updateTime(faceId, negativePicturePath);
+                logger.info("主抓拍机");
             }
         }
     }

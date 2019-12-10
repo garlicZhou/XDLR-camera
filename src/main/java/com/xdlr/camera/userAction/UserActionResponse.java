@@ -1,4 +1,4 @@
-package com.xdlr.camera.token;
+package com.xdlr.camera.userAction;
 
 public class UserActionResponse {
 
