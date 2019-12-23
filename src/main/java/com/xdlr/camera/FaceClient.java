@@ -136,10 +136,6 @@ public class FaceClient {
             } else if (channelNo == 0) {
                 logger.info("文明行为");
                 userActionManager.openCan(faceId, negativePicturePath);
-//                Trashcan trashcan = new Trashcan();
-//                int state = trashcan.getCanState();
-//                if (state == Trashcan.TRASHCAN_STATE_OFF) {
-//                }
             } else if (channelNo == 1) {
                 userActionManager.updateTime(faceId, negativePicturePath);
                 logger.info("主抓拍机");

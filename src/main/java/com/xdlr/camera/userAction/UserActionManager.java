@@ -1,9 +1,11 @@
 package com.xdlr.camera.userAction;
 
 import com.xdlr.camera.trashcan.Trashcan;
+import com.xdlr.camera.util.Base64ImageUtils;
 import com.xdlr.camera.util.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class UserActionManager {
     private static Logger logger = LoggerFactory.getLogger(UserActionManager.class);
@@ -14,7 +16,9 @@ public class UserActionManager {
     public void register(String certNum, String imagePath) {
         state = states[0];
         logger.info("初始化用户");
-        String res = HttpUtil.doGet(HOST_ADDRESS + "/register?" + "userId=" + certNum + "&name=tom");
+        String base64Image = Base64.encode(imagePath.getBytes());
+        String res = HttpUtil.doGet(HOST_ADDRESS + "/register?" + "userId=" + certNum + "&name=tom" + "&userImg=" +
+                base64Image);
         logger.info(res);
     }
 
